@@ -66,7 +66,7 @@ SCREENSHOTS:
 ![protofoor](img/protofoor2.PNG)
 
 VIDEO:
-![video](video.gif)
+![video](img/video.gif)
 
 
 
