@@ -28,7 +28,7 @@ In this project Firebase realtime database was used.
 
 Database architecture is like this:
 
-ˇˇˇjson
+´´´json
 "foor": {
   "duration":800,
   "mode": 0,
@@ -57,7 +57,7 @@ Database architecture is like this:
   "delay": 300,
   "state": 1
 }
-ˇˇˇ
+´´´
 
 SCREENSHOTS:
 ![seadistus](img/seadistusleht.PNG)
