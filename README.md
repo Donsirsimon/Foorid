@@ -58,8 +58,13 @@ Database architecture is like this:
   "state": 1
 }
 ˇˇˇ
+
 SCREENSHOTS:
-![seadistus](img/seadistusleht.png)
+![seadistus](img/seadistusleht.PNG)
+![foor](img/foori leht.PNG)
+
+
+VIDEO:
 
 
 
