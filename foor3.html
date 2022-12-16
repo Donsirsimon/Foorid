@@ -1,0 +1,544 @@
+<!doctype html>
+<html>
+	<head>
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,900;1,300;1,700;1,900&display=swap" rel="stylesheet">
+		<style type="text/css">
+			#nimeKuvamine{
+				display: none;
+			}
+			.grid-container {
+				display: grid;
+				grid-template-columns: 1fr 1fr;
+				grid-gap: 20px;
+				padding:20px;
+			}
+			.pealk{
+				text-align: center;
+				
+			}
+			.menuu{
+				text-align: center;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				gap: 10px;
+				flex-direction: column;
+			}
+			.grid-child{
+				text-align: center;
+			
+			}
+			* {
+				font-family: 'Roboto', sans-serif;
+			}
+			input[type="button"],button {
+				padding: 10px;
+				width: 150px;
+			}
+			input[type="text"] {
+				width: 200px;
+
+			}
+			.tuli{
+				width: 30px;
+				height: 30px;
+				border: solid 3px black;
+				background-color: black;
+			}
+			.center{
+				text-align: center;
+				margin: auto;
+				width: 200px;
+			}
+		
+		</style>
+
+		<script type="module" defer>
+			
+
+
+
+
+			
+		
+			// Import the functions you need from the SDKs you need
+			import { initializeApp } from "https://www.gstatic.com/firebasejs/9.11.0/firebase-app.js";
+			import { getDatabase, ref, onValue, set, update, get, child, remove } from "https://www.gstatic.com/firebasejs/9.11.0/firebase-database.js";
+			const firebaseConfig = {
+				apiKey: "AIzaSyABSGkrMdXdAzVpQ2LNWzxWM8zORwVG9Ac",
+				authDomain: "kenpikasjad.firebaseapp.com",
+				databaseURL: "https://kenpikasjad-default-rtdb.europe-west1.firebasedatabase.app",
+				projectId: "kenpikasjad",
+				storageBucket: "kenpikasjad.appspot.com",
+				messagingSenderId: "269648607479",
+				appId: "1:269648607479:web:0ead38cf9c56c6d5eb7bf2"
+			};
+
+			const app = initializeApp(firebaseConfig);
+			const db = getDatabase();
+			
+			const foor3Db = ref(db, "foor3");
+			const foor2Db = ref(db, "foor2");
+			const foor4Db = ref(db, "foor4");
+			const waveDb = ref(db, "wave");
+			
+		
+			
+			
+			let color
+			//onValue(koht, kuva);
+			function kuva(viit) {
+				console.log("test")
+				const newColor = viit.val()["currentColor"]
+				if (color == newColor) return
+				color = newColor
+				console.log(color)
+				
+				document.querySelector("#autopun").style.backgroundColor = color
+			
+			//if ()
+			}
+			let buttonState = 0;
+			let light
+			let waveinfo
+			let mode
+			let cyclelength=2000;
+			let ongoingCycle= 0;
+			let ongoingDelay = 0;
+			let delaylength = 0;
+			let greenWave = 0;
+			let globalButtonState= 0;
+			
+			let foor2info;
+			let foor4info;
+			let foor2state;
+			let foor4state;
+			
+			let previousfoor2state = 99;
+			let previousfoor4state = 99;
+			let ongoingfoor2state;
+			let ongoingfoor4state;
+			let changed= 1;
+			
+			
+			//KAS NEID VAJA? KUSTUTADA?
+			let light2
+			let wave
+			let savedWave
+            let savedLight1
+			let savedLight2
+            //getLight1()
+			//getLight2()
+			//getWave()
+			document.querySelector("#autopun").style.backgroundColor = "black"
+			document.querySelector("#autokol").style.backgroundColor = "black"
+			document.querySelector("#autoroh").style.backgroundColor = "black"
+		
+			document.querySelector("#jalapun").style.backgroundColor = "black"
+			document.querySelector("#jalaroh").style.backgroundColor = "black"
+		
+			window.setInterval('loop()', 2000);
+
+			
+			window.loop = () => {
+				//LOEN MODE JA DURATION SEADED SISSE
+				const dbref = ref(db);
+				get(child(dbref,"foor3/")).then((snapshot)=> {
+					if(!snapshot.exists()) return
+                    light = snapshot.val()
+                    //savedLight1 = snapshot.val()
+					console.log(light)
+					console.log(light.duration);
+					cyclelength = light.duration;
+					mode = light.mode;
+					console.log("sisseloetud cyclelength: ")
+					console.log(cyclelength)
+					console.log("sisseloetud mode")
+					console.log(mode)
+					//siin mingi else ka vaja?					
+				})
+				//SIIA LISAKS GREENWAVE SEADETE LUGEMISE
+				get(child(dbref,"wave/")).then((snapshot)=> {
+					if(!snapshot.exists()) return
+                    waveinfo = snapshot.val()
+                    //savedLight1 = snapshot.val()
+					console.log(waveinfo)
+					console.log(waveinfo.state);
+					delaylength= waveinfo.delay;
+					greenWave =waveinfo.state;
+					globalButtonState = waveinfo.buttonstate; //OKEIII SEE VAJAB MUUTMIST KUNA NÜÜD FOORE ROHKEM!
+					
+					console.log("sisseloetud wave state: ")
+					console.log(greenWave)
+					console.log("sisseloetud delay")
+					console.log(delaylength)
+					//siin mingi else ka vaja?					
+				})
+				if((greenWave==1)||(greenWave==2)){
+					//Teen Greenwaveasja
+					console.log("Teen greenwave asja")
+					//Tulekul
+					
+					//kui delay väiksem kui null on foor 4 juhi rollis
+					if(delaylength < 0){
+						previousfoor2state = 99;
+						//jälgin foor 4 state-i
+						get(child(dbref,"foor4/")).then((snapshot)=> {
+							if(!snapshot.exists()) return
+							foor4info = snapshot.val()
+							//savedLight1 = snapshot.val()
+							console.log(foor4info)
+							console.log(foor4info.state);
+							foor4state = foor4info.state;
+							
+							console.log("sisseloetud foor4state: ")
+							console.log(foor4state)
+							
+							if(foor4state  != previousfoor4state){
+								ongoingfoor4state = foor4state;
+								previousfoor4state = foor4state;
+								changed=0;
+								if(delaylength < 0){
+									//muudan positiivseks
+									ongoingDelay = delaylength * -1;
+					  
+								}
+								else{
+									//delaylength positiivne ja muutma ei pea
+									ongoingDelay = delaylength;
+								}
+							
+							}
+						})
+						
+						if(ongoingDelay > 0){
+							ongoingDelay-=100;
+						
+						}
+						//kui delay aeg on 0
+						else if(changed == 0){
+							if(ongoingfoor4state == 0){
+								update(foor3Db,{"state": 0});
+								carToPed();
+								changed = 1;
+							
+							
+							}
+							else if (ongoingfoor4state == 1){
+								update(foor3Db,{"state": 1});
+								pedToCar();
+								changed = 1;
+							
+							}
+						
+						}
+					
+					}
+
+					else if(delaylength >= 0){
+						previousfoor4state = 99;
+						//jälgin foor 2 state-i
+						get(child(dbref,"foor2/")).then((snapshot)=> {
+							if(!snapshot.exists()) return
+							foor2info = snapshot.val()
+							//savedLight1 = snapshot.val()
+							console.log(foor2info)
+							console.log(foor2info.state);
+							foor2state = foor2info.state;
+							
+							console.log("sisseloetud foor2state: ")
+							console.log(foor2state)
+							
+							if(foor2state  != previousfoor2state){
+								ongoingfoor2state= foor2state;
+								previousfoor2state=foor2state;
+								changed=0;
+								if(delaylength < 0){
+									//muudan positiivseks
+									ongoingDelay = delaylength * -1;
+					  
+								}
+								else{
+									//delaylength positiivne ja muutma ei pea
+									ongoingDelay = delaylength;
+								}
+							
+							}
+						})
+						
+						if(ongoingDelay > 0){
+							ongoingDelay-=100;
+						
+						}
+						//kui delay aeg on 0
+						else if(changed == 0){
+							if(ongoingfoor2state == 0){
+								update(foor3Db,{"state": 0});
+								carToPed();
+								changed = 1;
+							
+							
+							}
+							else if (ongoingfoor2state == 1){
+								update(foor3Db,{"state": 1});
+								pedToCar();
+								changed = 1;
+							
+							}
+						
+						}
+					
+					}
+				
+				}
+				//kui greenwave pole sisse lülitatud teeb foor kõike nii nagu algselt oma seatud mode-i järgi.
+				else{
+					if(mode== 0){
+						//tavaline ajastatud režiim
+						//kui tsükliaeg pole 0
+						console.log("valitud mode 0");
+						console.log("ongoingcycle:");
+						console.log(ongoingCycle);
+						if(ongoingCycle > 0){
+							ongoingCycle-=100;
+							
+						
+						}
+						//kui tsükli aeg on 0
+						else if(ongoingCycle == 0){
+							if(document.querySelector("#autoroh").style.backgroundColor == "green" && document.querySelector("#jalapun").style.backgroundColor == "red"){ //kui autole põleb roheline ja jalak punane
+								//Serial.println("kui autole põleb roheline ja jalak punane");
+								//muudan foorid jalakäijale
+								carToPed();
+								//taaskäivitan tsükli
+								ongoingCycle= cyclelength;
+							}
+							else if(document.querySelector("#autopun").style.backgroundColor == "red" && document.querySelector("#jalaroh").style.backgroundColor == "green"){//kui autole põleb punane ja jalak roheline
+								//Serial.println("kui autole põleb punane ja jalak roheline");
+								//muudan foori autole
+								pedToCar();
+								//taaskäivitan tsükli
+								ongoingCycle= cyclelength;
+							}
+							else if(document.querySelector("#autopun").style.backgroundColor == "black" && 
+									document.querySelector("#jalaroh").style.backgroundColor == "black" &&
+									document.querySelector("#autoroh").style.backgroundColor == "black" &&
+									document.querySelector("#jalapun").style.backgroundColor == "black"){
+							  //Kui foor ei põle
+							  pedToCar();
+							  ongoingCycle= cyclelength;
+							  
+							}
+						}
+					}
+					else if(mode== 1){
+						//jalakäija nupuga režiim
+						console.log("valitud mode 1");
+						console.log("ongoingcycle:");
+						console.log(ongoingCycle);
+						
+						if(ongoingCycle > 0){
+							ongoingCycle-=100;
+							
+						
+						}
+						else if(ongoingCycle == 0){
+							//Kui nupp vajutatud ja autole roheline ning jalakäijale punane
+							if(buttonState== 1 && document.querySelector("#autoroh").style.backgroundColor == "green" && document.querySelector("#jalapun").style.backgroundColor == "red"){
+								carToPed();
+								//taaskäivitan tsükli
+								ongoingCycle= cyclelength;
+								buttonState = 0; //reset nupuvajutus...
+
+							}
+							else if(document.querySelector("#autopun").style.backgroundColor == "red" && document.querySelector("#jalaroh").style.backgroundColor == "green"){//kui autole põleb punane ja jalak roheline
+								pedToCar();
+								
+							
+							}
+							//kui fooris rohelised ega punased ei põle
+							else if(document.querySelector("#autopun").style.backgroundColor == "black" && 
+									document.querySelector("#jalaroh").style.backgroundColor == "black" &&
+									document.querySelector("#autoroh").style.backgroundColor == "black" &&
+									document.querySelector("#jalapun").style.backgroundColor == "black"){
+									
+								document.querySelector("#autopun").style.backgroundColor = "black"
+								document.querySelector("#autokol").style.backgroundColor = "black"
+								document.querySelector("#autoroh").style.backgroundColor = "green"
+			
+								document.querySelector("#jalapun").style.backgroundColor = "red"
+								document.querySelector("#jalaroh").style.backgroundColor = "black"
+							}
+							//kui nupp pole vajutatud ja autole roheline siis ei tee midagi...
+						}
+					}
+					else if(mode == 2){
+						//off mode- auto kollane vilgub
+						 blinkYellow();
+					
+					
+					}
+				}
+			}
+			
+			window.laseÜle = () => {
+				
+				buttonState= 1;
+				//alert('Siia tuleb nupu funktsioon')
+				update(waveDb,{"button3state": 1});
+				
+			}
+			
+			
+			
+			
+			window.algus = () => {
+				//carToPed();
+			    pedToCar();
+			
+			}
+			
+			function delay(time) {
+				return new Promise(resolve => setTimeout(resolve, time));
+			}
+			
+			
+			async function carToPed(){ 
+			
+			console.log("carToPed algus")  
+			//auto roheline vilgub 5 ajaühikut
+				for(let i=0; i<=5;i++){
+					
+					console.log(document.querySelector("#autoroh").style.backgroundColor == "green");
+					if(document.querySelector("#autoroh").style.backgroundColor == "green"){
+						document.querySelector("#autopun").style.backgroundColor = "black"
+						document.querySelector("#autokol").style.backgroundColor = "black"
+						document.querySelector("#autoroh").style.backgroundColor = "black"
+					
+					
+					}
+					else if (document.querySelector("#autoroh").style.backgroundColor == "black"){
+						document.querySelector("#autoroh").style.backgroundColor = "green"
+					
+					}
+					await delay(1000);
+				}
+				
+				//Auto roheline kustub ja Süttib kollane 5ks ajaühikuks
+				document.querySelector("#autoroh").style.backgroundColor = "black";
+				for(let i=0; i<=5;i++){
+					document.querySelector("#autokol").style.backgroundColor = "yellow"
+					await delay(1000);
+				
+				}
+				//lõpp
+				//Autole punane  ja jalakäijale roheline
+				document.querySelector("#autopun").style.backgroundColor = "red"
+				document.querySelector("#autokol").style.backgroundColor = "black"
+				document.querySelector("#autoroh").style.backgroundColor = "black"
+				
+				document.querySelector("#jalapun").style.backgroundColor = "black"
+				document.querySelector("#jalaroh").style.backgroundColor = "green"
+				
+			}
+  
+			async function pedToCar(){
+			
+				console.log("pedToCar algus")
+				//jalakäija roheline põleb
+				//Autol punane  koos kollasega -> roheline
+				//Jalakäijal vilkuv roheline -> punane
+				//autol Punane ja kollane koos põlema...
+				//ja jalakäija  roheline vilkuma...
+				document.querySelector("#autopun").style.backgroundColor = "red"
+				document.querySelector("#autokol").style.backgroundColor = "yellow"
+				document.querySelector("#autoroh").style.backgroundColor = "black"
+				
+				//ja jalakäija  roheline vilkuma...
+				for(let i=0; i<=5;i++){
+					if(document.querySelector("#jalaroh").style.backgroundColor == "green"){
+						//jalak roheline kustu
+						document.querySelector("#jalapun").style.backgroundColor == "black"
+						document.querySelector("#jalaroh").style.backgroundColor == "black"
+					
+					}	
+					else if(document.querySelector("#jalaroh").style.backgroundColor == "black"){
+						//jalakäija roheline põlema
+						document.querySelector("#jalapun").style.backgroundColor == "black"
+						document.querySelector("#jalaroh").style.backgroundColor == "green"
+					
+					}
+					await delay(1000);
+					
+				
+					
+				
+				}
+				//lõppseis
+				document.querySelector("#autopun").style.backgroundColor = "black"
+				document.querySelector("#autokol").style.backgroundColor = "black"
+				document.querySelector("#autoroh").style.backgroundColor = "green"
+				
+				document.querySelector("#jalapun").style.backgroundColor = "red"
+				document.querySelector("#jalaroh").style.backgroundColor = "black"
+			}
+			
+			
+			function blinkYellow(){
+				document.querySelector("#autopun").style.backgroundColor = "black"
+				document.querySelector("#autokol").style.backgroundColor = "black"
+				document.querySelector("#autoroh").style.backgroundColor = "black"
+			
+				document.querySelector("#jalapun").style.backgroundColor = "black"
+				document.querySelector("#jalaroh").style.backgroundColor = "black"
+				if(ongoingCycle > 0){
+					ongoingCycle-=100;
+				}
+				  //kui tsükli aeg on 0
+				else if(ongoingCycle == 0){
+					
+					if(document.querySelector("#autokol").style.backgroundColor == "yellow"){
+					  document.querySelector("#autokol").style.backgroundColor = "black"
+					  ongoingCycle= 100;
+					  
+					}
+					else if(document.querySelector("#autokol").style.backgroundColor == "black"){
+					  document.querySelector("#autokol").style.backgroundColor = "yellow"
+					  ongoingCycle= 100;
+					}
+				}
+				
+			}
+			
+			
+			
+			
+		</script>
+	</head>
+	<body onload= "loop()" >
+		<h1 class="pealk">Foor3</h1>
+		<div class="menuu">
+			
+			<br><br>
+			<button id="submitBtn" onclick="laseÜle()">Lase jalakäija üle</button>
+		</div>
+		<h1 class="pealk">AUTO FOOR</h1>
+		<div class= "menuu">
+			
+			<div class= "tuli" id= "autopun">pun </div>
+			<div class= "tuli" id= "autokol">kol </div>
+			<div class= "tuli" id= "autoroh">roh </div>
+		</div>
+		<h1 class="pealk">JALAKÄIJA FOOR</h1>
+		<div class = "menuu">
+			
+			<div class= "tuli" id= "jalapun">pun </div>
+			<div class= "tuli" id= "jalaroh">roh </div>
+		</div>
+	
+		
+		
+	</body>
+</html>

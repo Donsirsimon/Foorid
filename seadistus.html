@@ -1,0 +1,406 @@
+
+<!doctype html>
+<html>
+	<head>
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,900;1,300;1,700;1,900&display=swap" rel="stylesheet">
+		<style type="text/css">
+			#nimeKuvamine{
+				display: none;
+			}
+			.grid-container {
+				display: grid;
+				grid-template-columns: 1fr 1fr;
+				grid-gap: 20px;
+				padding:20px;
+			}
+			.pealk{
+				text-align: center;
+				
+			}
+			.menuu{
+				text-align: center;
+			}
+			.grid-child{
+				text-align: center;
+			
+			}
+			* {
+				font-family: 'Roboto', sans-serif;
+			}
+			input[type="button"],button {
+				padding: 10px;
+				width: 150px;
+			}
+			input[type="text"] {
+				width: 200px;
+
+			}
+			.parent {
+				margin: 1rem;
+				padding: 0rem 1rem;
+				text-align: center;
+				
+			}
+			.child {
+				display: inline-block;
+				border: 2px solid black;
+				padding: 2rem 2rem;
+				margin-left: 3px;
+				margin-right: 3px;
+				vertical-align: middle;
+			}
+		</style>
+
+		<script type="module">
+			// Import the functions you need from the SDKs you need
+			import { initializeApp } from "https://www.gstatic.com/firebasejs/9.11.0/firebase-app.js";
+			import { getDatabase, ref, onValue, set, update, get, child, remove } from "https://www.gstatic.com/firebasejs/9.11.0/firebase-database.js";
+			const firebaseConfig = {
+				apiKey: "AIzaSyABSGkrMdXdAzVpQ2LNWzxWM8zORwVG9Ac",
+				authDomain: "kenpikasjad.firebaseapp.com",
+				databaseURL: "https://kenpikasjad-default-rtdb.europe-west1.firebasedatabase.app",
+				projectId: "kenpikasjad",
+				storageBucket: "kenpikasjad.appspot.com",
+				messagingSenderId: "269648607479",
+				appId: "1:269648607479:web:0ead38cf9c56c6d5eb7bf2"
+			};
+
+			const app = initializeApp(firebaseConfig);
+			const db = getDatabase();
+			const foor1Db = ref(db, "foor");
+			const foor2Db = ref(db, "foor2");
+			const foor3Db = ref(db, "foor3");
+			const foor4Db = ref(db, "foor4");
+			const waveDb = ref(db, "wave");
+
+			let light1
+			let light2
+			let light3
+			let light4
+			let wave
+			let savedWave
+            let savedLight1
+			let savedLight2
+			let savedLight3
+			let savedLight4
+			let durationAll
+            getLight1()
+			getLight2()
+			getLight3()
+			getLight4()
+			getWave()
+		
+			function getLight1() {
+				let div = document.querySelector('.kuvand');
+				const dbref = ref(db);
+				get(child(dbref,"foor/")).then((snapshot)=> {
+					if(!snapshot.exists()) return
+                    light1 = snapshot.val()
+                    savedLight1 = snapshot.val()
+					console.log(light1)
+					console.log(light1.duration/ 100);
+					durationInput1.value = light1.duration / 100;
+					modes1.value = light1.mode
+				})
+			}
+			
+			function getLight2() {
+				let div = document.querySelector('.kuvand');
+				const dbref = ref(db);
+				get(child(dbref,"foor2/")).then((snapshot)=> {
+					if(!snapshot.exists()) return
+                    light2 = snapshot.val()
+                    savedLight2 = snapshot.val()
+					console.log(light2)
+					console.log(light2.duration/ 100);
+					durationInput2.value = light2.duration / 100;
+					modes2.value = light2.mode
+				})
+			}
+			
+			function getLight3() {
+				let div = document.querySelector('.kuvand');
+				const dbref = ref(db);
+				get(child(dbref,"foor3/")).then((snapshot)=> {
+					if(!snapshot.exists()) return
+                    light3 = snapshot.val()
+                    savedLight3 = snapshot.val()
+					console.log(light3)
+					console.log(light3.duration/ 100);
+					durationInput3.value = light3.duration / 100;
+					modes3.value = light3.mode
+				})
+			}
+			
+			function getLight4() {
+				let div = document.querySelector('.kuvand');
+				const dbref = ref(db);
+				get(child(dbref,"foor4/")).then((snapshot)=> {
+					if(!snapshot.exists()) return
+                    light4 = snapshot.val()
+                    savedLight4 = snapshot.val()
+					console.log(light4)
+					console.log(light4.duration/ 100);
+					durationInput4.value = light4.duration / 100;
+					modes4.value = light4.mode
+				})
+			}
+			
+			
+			
+			
+			function getWave() {
+				let div = document.querySelector('.kuvand');
+				const dbref = ref(db);
+				get(child(dbref,"wave/")).then((snapshot)=> {
+					if(!snapshot.exists()) return
+                    wave = snapshot.val()
+                    savedWave = snapshot.val()
+					console.log(wave)
+					console.log(wave.delay / 100);
+					delayInput.value = wave.delay / 100;
+					modeswave.value = wave.state
+				})
+			}
+
+
+			window.salvestafoor1 = () => {
+				light1.duration = parseInt(durationInput1.value)
+				light1.duration = light1.duration * 100
+				console.log("Salvestatav duration: " + light1.duration)
+				light1.mode = parseInt(modes1.value)
+
+                if (!savedLight1?.duration) return alert('Pole andmeid!')
+				update(foor1Db , light1)
+				savedLight1 = JSON.parse(JSON.stringify(light1))
+				
+				alert('Foor nr 1 seadistus salvestatud')
+				
+				
+			}
+			
+			
+			window.salvestafoor2 = () => {
+				light2.duration = parseInt(durationInput2.value)
+				light2.duration = light2.duration * 100
+				console.log("Salvestatav duration: " + light2.duration)
+				light2.mode = parseInt(modes2.value)
+
+                if (!savedLight2?.duration) return alert('Pole andmeid!')
+				update(foor2Db , light2)
+				savedLight2 = JSON.parse(JSON.stringify(light2))
+				
+				alert('Foor nr2 seadistus salvestatud')
+				
+				
+			}
+			
+			window.salvestafoor3 = () => {
+				light3.duration = parseInt(durationInput3.value)
+				light3.duration = light3.duration * 100
+				console.log("Salvestatav duration: " + light3.duration)
+				light3.mode = parseInt(modes3.value)
+
+                if (!savedLight3?.duration) return alert('Pole andmeid!')
+				update(foor3Db , light3)
+				savedLight3 = JSON.parse(JSON.stringify(light3))
+				
+				alert('Foor nr3 seadistus salvestatud')
+				
+				
+			}
+			
+			
+			window.salvestafoor4 = () => {
+				light4.duration = parseInt(durationInput4.value)
+				light4.duration = light4.duration * 100
+				console.log("Salvestatav duration: " + light4.duration)
+				light4.mode = parseInt(modes2.value)
+
+                if (!savedLight4?.duration) return alert('Pole andmeid!')
+				update(foor4Db , light4)
+				savedLight4 = JSON.parse(JSON.stringify(light4))
+				
+				alert('Foor nr4 seadistus salvestatud')
+				
+				
+			}
+			
+			
+			
+			window.salvestaPolemiseajad = () => {
+				console.log(durationInputAll)
+				console.log(durationInputAll.value)
+				durationAll = parseInt(durationInputAll.value)
+				console.log("Sisseloetud durationAll input: " + durationAll)
+				durationAll = durationAll * 100
+				console.log("Salvestatav  durationAll: " + durationAll)
+				light1.duration = durationAll
+				light2.duration = durationAll
+				light3.duration = durationAll
+				light4.duration = durationAll
+				
+				if (!savedLight1?.duration) return alert('Pole andmeid!')
+				update(foor1Db , light1)
+				savedLight1 = JSON.parse(JSON.stringify(light1))
+				
+				if (!savedLight2?.duration) return alert('Pole andmeid!')
+				update(foor2Db , light2)
+				savedLight2 = JSON.parse(JSON.stringify(light2))
+				
+				if (!savedLight3?.duration) return alert('Pole andmeid!')
+				update(foor3Db , light3)
+				savedLight3 = JSON.parse(JSON.stringify(light3))
+				
+				if (!savedLight4?.duration) return alert('Pole andmeid!')
+				update(foor4Db , light4)
+				savedLight4 = JSON.parse(JSON.stringify(light4))
+				
+				getLight1()
+				getLight2()
+				getLight3()
+				getLight4()
+				
+				alert('Fooride põlemisajad salvestatud')
+			
+			}
+			
+			window.salvestaRohelineLaine = () => {
+				wave.delay = parseInt(delayInput.value)
+				wave.delay = wave.delay * 100
+				console.log("Salvestatav delay: " + wave.delay)
+				wave.state = parseInt(modeswave.value)
+
+                if (!savedWave?.delay) return alert('Pole andmeid!')
+				update(waveDb , wave)
+				savedWave = JSON.parse(JSON.stringify(wave))
+				
+				alert('Rohelise laine seadistus salvestatud')
+				
+				
+			}
+		</script>
+	</head>
+	<body>
+		<div class="parent">
+			<div class="child">
+	
+				<h1 class="pealk">Valgusfoori nr 1 juhtimine</h1>
+				<div class="menuu">
+					<label>Viiteaeg (s):</label>
+					<br>
+					<input type="number" name="durationInput1" id="durationInput1">
+
+					<br><br>
+					<label for="modes1">Režiim:</label>
+					<br>
+					<select name="modes1" id="modes1">
+						<option value="0">Ajastatult automaatne</option>
+						<option value="1">Jalakäija nupuga</option>
+						<option value="2">Vilkumine ehk off</option>
+					</select>
+
+					<br><br>
+					<button id="submitBtn" onclick="salvestafoor1()">Salvesta foor nr 1 seaded</button>
+				</div>
+			</div>	
+			<div class="child">	
+		
+				<h1 class="pealk">Valgusfoori nr 2 juhtimine</h1>
+				<div class="menuu">
+					<label>Viiteaeg (s):</label>
+					<br>
+					<input type="number" name="durationInput2" id="durationInput2">
+
+					<br><br>
+					<label for="modes2">Režiim:</label>
+					<br>
+					<select name="modes2" id="modes2">
+						<option value="0">Ajastatult automaatne</option>
+						<option value="1">Jalakäija nupuga</option>
+						<option value="2">Vilkumine ehk off</option>
+					</select>
+
+					<br><br>
+					<button id="submitBtn" onclick="salvestafoor2()">Salvesta foor nr2 seaded</button>
+				</div>
+			</div>	
+		</div>
+		<div class="parent">
+			<div class="child">
+		
+				<h1 class="pealk">Valgusfoori nr 3 juhtimine</h1>
+				<div class="menuu">
+					<label>Viiteaeg (s):</label>
+					<br>
+					<input type="number" name="durationInput3" id="durationInput3">
+
+					<br><br>
+					<label for="modes3">Režiim:</label>
+					<br>
+					<select name="modes3" id="modes3">
+						<option value="0">Ajastatult automaatne</option>
+						<option value="1">Jalakäija nupuga</option>
+						<option value="2">Vilkumine ehk off</option>
+					</select>
+
+					<br><br>
+					<button id="submitBtn" onclick="salvestafoor3()">Salvesta foor nr3 seaded</button>
+				</div>
+			</div>
+			<div class="child">
+		
+				<h1 class="pealk">Valgusfoori nr 4 juhtimine</h1>
+				<div class="menuu">
+					<label>Viiteaeg (s):</label>
+					<br>
+					<input type="number" name="durationInput4" id="durationInput4">
+
+					<br><br>
+					<label for="modes4">Režiim:</label>
+					<br>
+					<select name="modes4" id="modes4">
+						<option value="0">Ajastatult automaatne</option>
+						<option value="1">Jalakäija nupuga</option>
+						<option value="2">Vilkumine ehk off</option>
+					</select>
+
+					<br><br>
+					<button id="submitBtn" onclick="salvestafoor4()">Salvesta foor nr4 seaded</button>
+				</div>
+			</div>	
+		</div>	
+		
+		
+		<h1 class="pealk">Kõikide fooride põlemise aja korraga seadistus</h1>
+		<div class="menuu">
+			<label>Kõikide fooride põlemise aeg (s):</label>
+			<br>
+			<input type="number" name="durationInputAll" id="durationInputAll">
+			<br><br>
+			<button id="submitBtn" onclick="salvestaPolemiseajad()">Salvesta</button>
+		</div>
+		
+		
+		<h1 class="pealk">Rohelise laine seadistus</h1>
+		<div class="menuu">
+
+			<label>Fooride vaheline viiteaeg (s):</label>
+			<br>
+			<input type="number" name="delayInput" id="delayInput">
+			<br><br>
+			<label for="modeswave">Sees/Väljas:</label>
+			<br>
+			<select name="modeswave" id="modeswave">
+				<option value="0"> Väljas</option>
+				<option value="1"> Sees</option>
+				<option value="2"> Sees koos nupuga</option>
+			</select>
+			<br><br>
+			<button id="submitBtn" onclick="salvestaRohelineLaine()">Salvesta</button>
+		</div>
+					
+	</body>
+</html>
