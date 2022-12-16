@@ -59,7 +59,7 @@ Database architecture is like this:
 }
 ˇˇˇ
 SCREENSHOTS:
-
+![seadistus](img/seadistusleht.png)
 
 
 
