@@ -61,8 +61,9 @@ Database architecture is like this:
 
 SCREENSHOTS:
 ![seadistus](img/seadistusleht.PNG)
-![foor](img/foori leht.PNG)
-
+![foor](img/foorileht.PNG)
+![protofoor](img/protofoor1.PNG)
+![protofoor](img/protofoor2.PNG)
 
 VIDEO:
 
